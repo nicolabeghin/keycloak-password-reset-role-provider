@@ -1,0 +1,41 @@
+# Throwaway Keycloak for verifying the provider. Nothing here is meant for production:
+# dev mode, in-memory storage, a fixed admin password, and mail captured by Mailpit instead of sent.
+#
+#   mvn -B clean package && docker compose up -d && ./verify.sh
+#
+#   Keycloak  http://localhost:18080   (admin / admin)
+#   Mailpit   http://localhost:18025
+#
+# High host ports on purpose: 8080/8025 are commonly already taken by another local stack.
+# Keycloak reaches Mailpit as mailpit:1025 over the compose network, so SMTP is not published.
+#
+# The jar is bind-mounted, which is fine for development: start-dev re-augments on boot and picks
+# up the provider, including its JAX-RS resource (that part depends on META-INF/beans.xml being in
+# the jar - see CLAUDE.md). A single-file bind mount binds an inode, and `mvn package` writes a new
+# file, so recreate the container after each build (`docker compose up -d --force-recreate`) rather
+# than just restarting it.
+#
+# The realms created by verify.sh have NO user federation, so every user in them is local and
+# disposable. Never point this at a realm whose users are federated from a real database.
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.8.1
+    command:
+      - start-dev
+      - --spi-realm-restapi-extension-password-reset-role=trigger-password-reset
+      - --spi-realm-restapi-extension-password-reset-max-lifespan-seconds=3600
+      - --log-level=info,org.keycloak.passwordreset:debug
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    ports:
+      - "18080:8080"
+    volumes:
+      - ./target/password-reset-role-provider.jar:/opt/keycloak/providers/password-reset-role-provider.jar:ro
+    depends_on:
+      - mailpit
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "18025:8025"

@@ -1,14 +1,17 @@
-name: Java CI with Maven
+name: Build and release
 
 on:
   push:
     branches: [ main, master ]
+    tags: [ '*' ]
   pull_request:
     branches: [ main, master ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed by the release step to create the GitHub release
 
     steps:
       - uses: actions/checkout@v4
@@ -26,3 +29,9 @@ jobs:
           name: password-reset-role-provider
           path: target/password-reset-role-provider.jar
           if-no-files-found: error
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: target/password-reset-role-provider.jar
+          generate_release_notes: true

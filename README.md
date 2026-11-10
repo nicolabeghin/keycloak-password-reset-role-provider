@@ -62,7 +62,7 @@ Use the release matching your server.
 
 | Keycloak | Plugin release | Notes |
 |----------|----------------|-------|
-| 26.8.x | `26.8.1` | |
+| 26.8.x | `26.8.2` | |
 
 ## Install
 

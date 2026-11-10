@@ -172,8 +172,15 @@ expect "no token -> 401" 401 "$(curl -sS -o /tmp/prrp_body.$$ -w '%{http_code}' 
 expect "garbage token -> 401" 401 "$(reset_call "not.a.token" "$REALM" "" '{"username":"alice"}')"
 expect "token from another realm -> 401" 401 "$(reset_call "$OTHER_TOKEN" "$REALM" "" '{"username":"alice"}')"
 expect "client without the role -> 403" 403 "$(reset_call "$NOROLE_TOKEN" "$REALM" "" '{"username":"alice"}')"
-expect "caller has no admin rights (GET /users) -> 403" 403 "$(curl -sS -o /dev/null -w '%{http_code}' \
+# Keycloak 26.8.2 answers 401 (body: "Forbidden") where 26.8.1 answered 403 — the
+# refusal is what matters, not the status. Accept both so the suite runs on either.
+weak_admin_status="$(curl -sS -o /dev/null -w '%{http_code}' \
   "$KC/admin/realms/$REALM/users" -H "Authorization: Bearer $CALLER_TOKEN")"
+if [ "$weak_admin_status" = 403 ] || [ "$weak_admin_status" = 401 ]; then
+  ok "caller has no admin rights (GET /users) -> 401/403 ($weak_admin_status)"
+else
+  bad "caller has no admin rights (GET /users) -> 401/403 ($weak_admin_status)"
+fi
 
 # ---------------------------------------------------------------- happy path
 say "Happy path"

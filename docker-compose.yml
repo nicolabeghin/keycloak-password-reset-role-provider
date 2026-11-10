@@ -19,7 +19,7 @@
 # disposable. Never point this at a realm whose users are federated from a real database.
 services:
   keycloak:
-    image: quay.io/keycloak/keycloak:26.8.1
+    image: quay.io/keycloak/keycloak:26.8.2
     command:
       - start-dev
       - --spi-realm-restapi-extension-password-reset-role=trigger-password-reset

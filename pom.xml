@@ -8,7 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nicolabeghin</groupId>
     <artifactId>keycloak-password-reset-role-provider</artifactId>
-    <version>26.8.1</version>
+    <version>26.8.2</version>
     <packaging>jar</packaging>
 
     <name>Keycloak password reset role provider</name>
@@ -27,7 +27,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <keycloak.version>26.8.1</keycloak.version>
+        <keycloak.version>26.8.2</keycloak.version>
 
         <!-- Surefire properties for keycloak-test-framework support -->
         <testframework.surefire.args>
